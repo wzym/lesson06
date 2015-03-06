@@ -3,6 +3,7 @@
 abstract class AbstractArticle
         implements ArrayAccess {
 
+    public $id;     // объявляю здесь, так как будет у всех наследников
     static protected $table;
 
     public static function findAll() {
@@ -47,7 +48,7 @@ abstract class AbstractArticle
         $this->id = $db->lastInsertId();
     }
 
-    public function update() {
+    private function update() {
         $params[':id'] = $this->id;            // сохраняем в параметры сразу известные данные, по которым ищем
         $str = [];
         foreach ($this as $field => $value) {       // перебираем как массив объект, формируем строку и массив параметров
@@ -61,30 +62,22 @@ abstract class AbstractArticle
                 UPDATE ' . static::$table . ' SET ' .
                 $str .
                 ' WHERE id=:id';
-        echo $sql . '<br />';
+
         static::commonRequest($sql, false, $params);
     }
 
-    /*
-     * Пробегает по БД по заполненным в форме параметрам (ищет соответствие ПО ВСЕМ ЗАПОЛНЕННЫМ).
-     * Если совпадение не найдено - сохраняет как новую запись.
-     * Если найдено - то пока не ясна логика. Нам не известно, какой именно класс модели актуален.
-     * Следовательно, не известно, по каким полям искать новость для редактирования.
-     * Наш поиск сейчас ищет по всем данным параметрам. Как определимся со всеми моделями-наследниками,
-     * станет ясна структура замены.
-     */
     public function save() {
-        if (!empty($this->commonSearch())) {
-            $this->update('id', 37);        // для теста меняем 37-ю запись
-        } else {
+        if (empty($this->id)) {
             $this->addToDB();
+        } else {
+            $this->update();
         }
     }
 
     /*
      * Работает с текущим объектом модели, из которого вызван: собирает все заполненные поля
      * и ищет в БД соответствующую запись. Возвращает массив объектов-моделей, соответствующих
-     * запрошенным данным.
+     * запрошенным данным. Пока не знаю, пригодится ли.
      */
     private function commonSearch() {
         $params = [];
