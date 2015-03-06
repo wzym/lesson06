@@ -6,19 +6,13 @@ abstract class AbstractArticle
     static protected $table;
 
     public static function findAll() {
-        $class = get_called_class();
         $sql = 'SELECT * FROM ' . static::$table . ' ORDER BY date DESC';
-        $db = new DB();
-        $db->setClassName($class);
-        return $db->query($sql);
+        return static::commonRequest($sql);
     }
 
     public static function findByColumn($column, $value) {
-        $class = get_called_class();
         $sql = 'SELECT * FROM ' . static::$table . ' WHERE ' . $column . '=:' . $column;
-        $db = new DB();
-        $db->setClassName($class);
-        return $db->query($sql, [':' . $column => $value])[0];
+        return static::commonRequest($sql, [':' . $column => $value])[0];
     }
 
     public static function delete($column, $value) {
@@ -107,7 +101,6 @@ abstract class AbstractArticle
      * запрошенным данным.
      */
     private function commonSearch() {
-        $class = get_called_class();
         $params = [];
         $str = '';
         foreach ($this as $field => $value) {
@@ -121,9 +114,17 @@ abstract class AbstractArticle
                 SELECT * FROM ' . static::$table . '
                 WHERE ' . $str
         ;
+        return static::commonRequest($sql, $params);
+    }
+
+    private static function commonRequest($sql, $params = []) {
         $db = new DB();
-        $db->setClassName($class);
-        return $db->query($sql, $params);
+        $db->setClassName(get_called_class());
+        $res = $db->query($sql, $params);
+        if (!empty($res)) {
+            return $res;
+        }
+        return false;
     }
 
     public function offsetExists($offset) {
