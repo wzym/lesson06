@@ -7,18 +7,17 @@ abstract class AbstractArticle
 
     public static function findAll() {
         $sql = 'SELECT * FROM ' . static::$table . ' ORDER BY date DESC';
-        return static::commonRequest($sql);
+        return static::commonRequest($sql, true);
     }
 
     public static function findByColumn($column, $value) {
         $sql = 'SELECT * FROM ' . static::$table . ' WHERE ' . $column . '=:' . $column;
-        return static::commonRequest($sql, [':' . $column => $value])[0];
+        return static::commonRequest($sql, true, [':' . $column => $value])[0];
     }
 
-    public static function delete($column, $value) {
+    public function delete($column, $value) {
         $sql = 'DELETE FROM ' . static::$table . ' WHERE ' . $column . '=:' . $column;
-        $db = new DB();
-        $db->query($sql, [':' . $column => $value]);
+        return static::commonRequest($sql, false, [':' . $column => $value]);
     }
 
     /*
@@ -43,40 +42,27 @@ abstract class AbstractArticle
           (' . $strWithColon . ')
           ';
 
-        $db = new DB();
-
-        /*
-         * При успешном добавлении ищем id по новости, которую ищем
-         * по первому из полей, что были добавлены, так как при поиске по
-         * максимальному id может выдать не ту новость.
-         * Логика: возвращаем итератор рабочего массива (params[]) на первый элемент,
-         * получаем поле (ключ без двоеточия), подставляем это поле и его значение.
-         */
-        if ($db->execute($sql, $params)) {
-            reset($params);
-            $column = str_replace(':', '', key($params));
-            $new = static::findByColumn($column, $this->$column);
-            $this->id = $new->id;
-        }
+        $db = new DB();         // создаём вручную, чтобы получить из этой функции id через доступ к DB
+        $db->query($sql, $params, false);
+        $this->id = $db->lastInsertId();
     }
 
-    private function update($column, $value) {
-        $params[':' . $column] = $value;            // сохраняем в параметры сразу известные данные, по которым ищем
-        $str = '';
+    public function update() {
+        $params[':id'] = $this->id;            // сохраняем в параметры сразу известные данные, по которым ищем
+        $str = [];
         foreach ($this as $field => $value) {       // перебираем как массив объект, формируем строку и массив параметров
             if (!empty($value)) {
                 $params[':' . $field] = $value;
-                $str .= $field . '=:' . $field . ', ';
+                $str[] = $field . '=:' . $field;
             }
         }
-        $str = substr($str, 0, -2);         // удаляем последнюю запятую
+        $str = implode(', ', $str);
         $sql = '
                 UPDATE ' . static::$table . ' SET ' .
                 $str .
-                ' WHERE ' .
-                $column . '=:' . $column;
-        $db = new DB();
-        $db->execute($sql, $params);
+                ' WHERE id=:id';
+        echo $sql . '<br />';
+        static::commonRequest($sql, false, $params);
     }
 
     /*
@@ -114,13 +100,15 @@ abstract class AbstractArticle
                 SELECT * FROM ' . static::$table . '
                 WHERE ' . $str
         ;
-        return static::commonRequest($sql, $params);
+        return static::commonRequest($sql, true, $params);
     }
 
-    private static function commonRequest($sql, $params = []) {
+    private static function commonRequest($sql, $isReturnable, $params = []) {
         $db = new DB();
-        $db->setClassName(get_called_class());
-        $res = $db->query($sql, $params);
+        if (true === $isReturnable) {
+            $db->setClassName(get_called_class());
+        }
+        $res = $db->query($sql, $params, $isReturnable);
         if (!empty($res)) {
             return $res;
         }

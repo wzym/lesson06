@@ -12,14 +12,21 @@ class DB {
         $this->className = $className;
     }
 
-    public function query($sql, $params=[]) {
+    public function query($sql, $params=[], $isReturnable) {
         $sth = $this->dbh->prepare($sql);
-        $sth->execute($params);
-        return $sth->fetchAll(PDO::FETCH_CLASS, $this->className);
+        $res = $sth->execute($params);
+        if (true === $isReturnable) {
+            return $sth->fetchAll(PDO::FETCH_CLASS, $this->className);
+        }
+        return $res;
     }
 
-    public function execute($sql, $params=[]) {
-        $sth = $this->dbh->prepare($sql);
-        return $sth->execute($params);
+    public function lastInsertId() {
+        return $this->dbh->lastInsertId();
     }
+
+    //public function execute($sql, $params=[]) {
+    //    $sth = $this->dbh->prepare($sql);
+    //    return $sth->execute($params);
+    //}
 }
