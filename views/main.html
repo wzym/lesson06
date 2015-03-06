@@ -1,0 +1,10 @@
+<h3>Новости:</h3>
+<ul>
+    <?php foreach ($this as $items): ?>
+        <?php foreach ($items as $item): ?>
+            <li><a href="../index.php?act=<?php echo 'ShowOne';?>&id=<?php echo $item->id;?>">
+                <?php echo $item->title . ': ' . $item->date; ?>
+            </a></li>
+        <?php endforeach; ?>
+    <?php endforeach; ?>
+</ul>
