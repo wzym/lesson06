@@ -7,4 +7,9 @@ $act = isset($_GET['act']) ? $_GET['act'] : 'ShowAll';
 $act = 'action' . $act;
 
 $controller = new $ctrl;
-$controller->$act();
+try {
+    $controller->$act();
+} catch (E404Exception $exc) {
+    $controller->actionShowError();
+}
+
