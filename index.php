@@ -12,5 +12,8 @@ try {
 } catch (E404Exception $exc) {
     http_response_code(404);
     $controller->actionShowError($exc->getMessage());
+} catch (E403Exception $exc403) {
+    http_response_code(403);
+    $controller->actionShowError($exc403->getMessage());
 }
 
