@@ -1,3 +1,3 @@
 RewriteEngine on
 
-RewriteRule ^([a-zA-Z]+)\/([a-zA-Z]+) index.php?ctrl=$1&act=$2
+RewriteRule ^([a-zA-Z]+)\/([a-zA-Z1-9]+) index.php?ctrl=$1&act=$2
