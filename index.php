@@ -10,6 +10,7 @@ $controller = new $ctrl;
 try {
     $controller->$act();
 } catch (E404Exception $exc) {
-    $controller->actionShowError();
+    http_response_code(404);
+    $controller->actionShowError($exc->getMessage());
 }
 

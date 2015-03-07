@@ -9,12 +9,12 @@ class View implements Iterator {
         $this->infoToShow[$key] = $value;
     }
 
-    public function __construct($content = '/main.html') {      // При создании объекта вьюшки определяемся с контентом.
-        $this->content = $content;
+    public function __get($key) {
+        return $this->infoToShow[$key];
     }
 
-    public function assign($name, $value) {
-        $this->infoToShow[$name] = $value;
+    public function __construct($content = '/main.html') {      // При создании объекта вьюшки определяемся с контентом.
+        $this->content = $content;
     }
 
     public function render() {
