@@ -8,8 +8,7 @@ class DB {
         try{
             $this->dbh = new PDO('mysql:dbname=lesson010;host=localhost', 'root', '');
         } catch (PDOException $e) {
-            $logText = var_dump($e);
-            echo $logText;
+            $this->saveLog($e);
             $exc403 = new E403Exception('Соединиться с БД не удалось. В остальном всё работает как часы.');
             throw $exc403;
         }
@@ -26,8 +25,10 @@ class DB {
         try {
             $res = $sth->execute($params);
         } catch (PDOException $errPDO) {
+            $this->saveLog($errPDO);
             $exc403 = new E403Exception('Удалось даже соединиться, но запрос оказался некорректным.');
             throw $exc403;
+
         }
         if (true === $isReturnable) {
             return $sth->fetchAll(PDO::FETCH_CLASS, $this->className);
@@ -37,5 +38,13 @@ class DB {
 
     public function lastInsertId() {
         return $this->dbh->lastInsertId();
+    }
+
+    private function saveLog($err) {
+        $file = $err->getFile();
+        $lineNum = $err->getLine();
+        $message = $err->getMessage();
+        $time = date('Y/m/d:H');
+        $log = new EventLog($file, $lineNum, $time, $message);
     }
 }
