@@ -44,7 +44,7 @@ class DB {
         $file = $err->getFile();
         $lineNum = $err->getLine();
         $message = $err->getMessage();
-        $time = date('Y/m/d:H');
+        $time = date('Y/m/d H:m');
         $log = new EventLog($file, $lineNum, $time, $message);
     }
 }
