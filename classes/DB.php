@@ -6,7 +6,7 @@ class DB {
 
     public function __construct() {
         try{
-            $this->dbh = new PDO('mysql:dbname=lesson010;host=localhost', 'root', '');
+            $this->dbh = new PDO('mysql:dbname=lesson01;host=localhost', 'root', '');
         } catch (PDOException $e) {
             $this->saveLog($e);
             $exc403 = new E403Exception('Соединиться с БД не удалось. В остальном всё работает как часы.');

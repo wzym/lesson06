@@ -21,8 +21,9 @@ class EventLog {
                         'Сообщение: ' . $this->message . '.<br />' .
                         'Файл с ошибкой скрипта: ' . $this->filename . '.<br />' .
                         'Строка ошибки:' . $this->lineNum . '.<br /><br />' .
-                        '</div>
-                        ';
+                        '</div>' . '
+'       // добавлен конец строки для отображения логово в редакторе построчно
+                    ;
         fwrite($handle, $stringToAdd);
         fclose($handle);
     }
