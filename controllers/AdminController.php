@@ -16,6 +16,12 @@ class AdminController {
         $view->display();
     }
 
+    public function actionViewLog() {
+        $view = new View('/log.html');
+        $view->render();
+        $view->display();
+    }
+
     /*
      * Обработчик данных из post, заполняет поля новой новости, поля генерируются динамически
      * по полям соответствующего класса, названия заполняются из массива post.
